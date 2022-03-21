@@ -53,7 +53,7 @@ if (debug == true) {
 
 
 if (log == true) {
-
+  log = false;
 }
 
 
