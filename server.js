@@ -62,7 +62,7 @@ app.use(function(req, res){
     res.status(404).send('404 NOT FOUND')
 });
 
-
+// Creates sqllite database
 function create_db() {
   const db = new Database('log.db');
 
