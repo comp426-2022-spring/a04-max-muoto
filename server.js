@@ -65,5 +65,5 @@ app.use(function(req, res){
 // Creates sqllite database
 function create_db() {
   const db = new Database('log.db');
-
+  const stmt = db.prepare();
 }
