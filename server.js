@@ -68,4 +68,6 @@ function create_db() {
   const stmt = db.prepare(`
   SELECT name FROM sqlite_master WHERE type='table' and name='userinfo';`);
   let row = stmt.get();
+  const init_sql = '';
+  db.exec(init_sql);
 }
