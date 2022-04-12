@@ -1,6 +1,7 @@
 const express = require('express');
 const minimist = require('minimist');
 const database = require('better-sqlite3')
+const morgan = require('morgan');
 
 
 const app = express()
@@ -48,14 +49,13 @@ if (debug == true) {
 
   app.get('/app/error', (req, res) => {
     throw new Error('Error test successful.')
-    app.use(morgan('FORMAT', { stream: WRITESTREAM }))
   });
 }
 
 
 if (log == true) {
   const WRITESTREAM = fs.createWriteStream('FILE', { flags: 'a' })
-
+  app.use(morgan('FORMAT', { stream: WRITESTREAM }))
 }
 
 
