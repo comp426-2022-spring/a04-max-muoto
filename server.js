@@ -27,12 +27,12 @@ if (argv.help) {
 debug = false;
 log = true;
 
-if (argv.debug == "true") {
+if (argv.debug) {
   debug = true;
   console.log('hi');
 }
 
-if (argv.log == "false") {
+if (!argv.log) {
   log = false;
 }
 
