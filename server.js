@@ -2,6 +2,7 @@ const express = require('express');
 const minimist = require('minimist');
 const database = require('better-sqlite3')
 const morgan = require('morgan');
+const fs = require('fs');
 
 
 const app = express()
@@ -26,11 +27,11 @@ if (argv.help) {
 debug = false;
 log = true;
 
-if (argv.debug == "true") {
+if (argv.debug == true) {
   debug = true;
 }
 
-if (argv.log == "false") {
+if (argv.log == false) {
   log = false;
 }
 
@@ -55,8 +56,8 @@ if (debug == true) {
 
 if (log == true) {
   const WRITESTREAM = fs.createWriteStream('FILE', { flags: 'a' })
-  app.use(morgan('FORMAT', { stream: WRITESTREAM }))
-}
+  app.use(morgan('combined', { stream: WRITESTREAM }))
+} 
 
 
 // Default response for any other request
