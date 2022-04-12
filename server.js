@@ -1,6 +1,6 @@
 const express = require('express');
 const minimist = require('minimist');
-const Database = require('better-sqlite3');
+const db = require("./database.js");
 const morgan = require('morgan');
 const fs = require('fs');
 
@@ -57,8 +57,8 @@ app.use((req, res, next) => {
     useragent: req.headers['user-agent']
   }
 
-  const db = new Database('log.db');
-  const stmt = db.prepare(`INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, (logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent));
+  const stmt = db.prepare(`INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  const insert = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
   next();
 });
 
