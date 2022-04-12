@@ -42,18 +42,20 @@ const server = app.listen(HTTP_PORT, () => {
 
 if (debug == true) {
     app.get('/app/log/access', (req, res) => {
-      flip_result = coinFlip();
-      res.status(200).json({"flip" : flip_result});
+      const select_statement = db.prepare('SELECT * FROM accesslog').all();
+      res.status(200).json(select_statement);
   });
 
   app.get('/app/error', (req, res) => {
     throw new Error('Error test successful.')
+    app.use(morgan('FORMAT', { stream: WRITESTREAM }))
   });
 }
 
 
 if (log == true) {
-  
+  const WRITESTREAM = fs.createWriteStream('FILE', { flags: 'a' })
+
 }
 
 
@@ -63,11 +65,22 @@ app.use(function(req, res){
 });
 
 // Creates sqllite database
-function create_db() {
+app.use((req, res, next) => {
+  let logdata = {
+    remoteaddr: req.ip,
+    remoteuser: req.user,
+    time: Date.now(),
+    method: req.method,
+    url: req.url,
+    protocol: req.protocol,
+    httpversion: req.httpVersion,
+    status: res.statusCode,
+    referer: req.headers['referer'],
+    useragent: req.headers['user-agent']
+  }
+
   const db = new Database('log.db');
-  const stmt = db.prepare(`
-  SELECT name FROM sqlite_master WHERE type='table' and name='userinfo';`);
-  let row = stmt.get();
-  const init_sql = '';
-  db.exec(init_sql);
-}
+  const stmt = db.execute(`INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, (logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent));
+  next();
+  })
+
