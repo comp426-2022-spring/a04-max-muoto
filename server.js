@@ -1,6 +1,6 @@
 const express = require('express');
 const minimist = require('minimist');
-const database = require('better-sqlite3')
+const Database = require('better-sqlite3');
 const morgan = require('morgan');
 const fs = require('fs');
 
@@ -27,11 +27,12 @@ if (argv.help) {
 debug = false;
 log = true;
 
-if (argv.debug == true) {
+if (argv.debug == "true") {
   debug = true;
+  console.log('hi');
 }
 
-if (argv.log == false) {
+if (argv.log == "false") {
   log = false;
 }
 
@@ -39,6 +40,26 @@ if (argv.log == false) {
 // Start an app server
 const server = app.listen(HTTP_PORT, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%',HTTP_PORT))
+});
+
+// Creates sqllite database
+app.use((req, res, next) => {
+  let logdata = {
+    remoteaddr: req.ip,
+    remoteuser: req.user,
+    time: Date.now(),
+    method: req.method,
+    url: req.url,
+    protocol: req.protocol,
+    httpversion: req.httpVersion,
+    status: res.statusCode,
+    referer: req.headers['referer'],
+    useragent: req.headers['user-agent']
+  }
+
+  const db = new Database('log.db');
+  const stmt = db.prepare(`INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, (logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent));
+  next();
 });
 
 
@@ -64,24 +85,4 @@ if (log == true) {
 app.use(function(req, res){
     res.status(404).send('404 NOT FOUND')
 });
-
-// Creates sqllite database
-app.use((req, res, next) => {
-  let logdata = {
-    remoteaddr: req.ip,
-    remoteuser: req.user,
-    time: Date.now(),
-    method: req.method,
-    url: req.url,
-    protocol: req.protocol,
-    httpversion: req.httpVersion,
-    status: res.statusCode,
-    referer: req.headers['referer'],
-    useragent: req.headers['user-agent']
-  }
-
-  const db = new Database('log.db');
-  const stmt = db.execute(`INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, (logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent));
-  next();
-  })
 
